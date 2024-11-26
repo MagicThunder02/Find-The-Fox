@@ -7,8 +7,10 @@ public class GridManager : MonoBehaviour
     public int gridWidth = 4; // Width of the grid
     public int gridHeight = 4; // Height of the grid
 
+    public SPRulesManager rulesManager; // Reference to the rules manager component
+
     private GameObject[,] grid; // 2D array to store grid object references
-    private Tile[,] gameBoard; // 2D array to store placed tiles (both SPTile and TPTile)
+    public Tile[,] gameBoard; // 2D array to store placed tiles (both SPTile and TPTile)
 
     void Awake()
     {
@@ -38,9 +40,9 @@ public class GridManager : MonoBehaviour
                 GameObject cell = Instantiate(cellPrefab, worldPosition, Quaternion.identity);
                 cell.transform.parent = transform;
 
-                grid[x, y] = cell; // Initially, cells are empty (no tiles placed)
+                grid[y, x] = cell; // Initially, cells are empty (no tiles placed)
 
-                CreateTextObject($"{x}, {y}", worldPosition);
+                CreateTextObject($"{y}, {x}", worldPosition);
             }
         }
     }
@@ -67,7 +69,7 @@ public class GridManager : MonoBehaviour
                 if (gameBoard[row, col] == null) // Find the first empty cell
                 {
                     // Get the world position of the first empty cell
-                    Debug.Log("Placing tile at grid: " + grid[row, col]);
+                    // Debug.Log("Placing tile at grid: " + grid[row, col]);
                     Vector3 worldPosition = grid[row, col].transform.position;
 
                     // Place the tile at this position
@@ -76,6 +78,8 @@ public class GridManager : MonoBehaviour
 
                     // Update the game board array with the placed tile
                     gameBoard[row, col] = tile; // Store the tile at the correct position
+
+                    rulesManager.CheckForWord("FOX", gameBoard); // Check for words after placing the tile
 
                     return true; // Tile placed successfully
                 }
