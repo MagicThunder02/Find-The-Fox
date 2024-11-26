@@ -20,39 +20,30 @@ public class GridManager : MonoBehaviour
     // Create the grid cells
     private void CreateGrid()
     {
-        // Get the camera's position in world space
         Vector3 cameraPosition = Camera.main.transform.position;
-
-        // Calculate the size of the grid based on the number of cells and the size of the cell prefab
         float gridWidthInWorldSpace = gridWidth * cellPrefab.transform.localScale.x;
         float gridHeightInWorldSpace = gridHeight * cellPrefab.transform.localScale.y;
-
-        // Calculate the offset to center the grid with respect to the camera
         float offsetX = cameraPosition.x - (gridWidthInWorldSpace / 2f);
-        float offsetY = cameraPosition.y + (gridHeightInWorldSpace / 2f);  // Y is inverted in Unity 2D space
+        float offsetY = cameraPosition.y + (gridHeightInWorldSpace / 2f);
 
         for (int x = 0; x < gridWidth; x++)
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                // Adjust the X and Y position to match grid coordinates (swap X and Y handling if needed)
                 Vector3 worldPosition = new Vector3(
-                    offsetX + (x * cellPrefab.transform.localScale.x), // Horizontal positioning (x axis)
-                    offsetY - (y * cellPrefab.transform.localScale.y), // Vertical positioning (y axis, inverted)
-                    0); // Z axis remains constant for 2D grid
+                    offsetX + (x * cellPrefab.transform.localScale.x) + cellPrefab.transform.localScale.x / 2,
+                    offsetY - (y * cellPrefab.transform.localScale.y) - cellPrefab.transform.localScale.y / 2,
+                    0);
 
-                // Instantiate the cell prefab at the calculated world position
                 GameObject cell = Instantiate(cellPrefab, worldPosition, Quaternion.identity);
-                cell.transform.parent = transform; // Set the grid as the parent of the cell
+                cell.transform.parent = transform;
 
-                grid[x, y] = cell; // Store the reference to the grid cell
+                grid[x, y] = cell; // Initially, cells are empty (no tiles placed)
 
-                // Optionally, label the cell with its coordinates for debugging
                 CreateTextObject($"{x}, {y}", worldPosition);
             }
         }
     }
-
 
     // Create labels for debugging (e.g., cell coordinates)
     private void CreateTextObject(string text, Vector3 position)
