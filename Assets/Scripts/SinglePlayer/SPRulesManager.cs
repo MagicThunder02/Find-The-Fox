@@ -2,8 +2,32 @@ using UnityEngine;
 
 public class SPRulesManager : MonoBehaviour
 {
-    public Vector2Int[] CheckForWord(string targetWord, Tile[,] gameBoard)
+    private GridManager gridManager; // Reference to the GridManager
+    private Tile[,] gameBoard;
+
+    void Start()
     {
+        // Get the GridManager from the scene
+        gridManager = FindAnyObjectByType<GridManager>();
+
+        if (gridManager == null)
+        {
+            Debug.LogError("GridManager not found in the scene.");
+        }
+        else
+        {
+            gameBoard = gridManager.gameBoard;
+        }
+    }
+
+    public Vector2Int[] CheckForWord(string targetWord)
+    {
+        if (gameBoard == null)
+        {
+            Debug.LogError("Game board is null.");
+            return null;
+        }
+
         int rows = gameBoard.GetLength(0);
         int cols = gameBoard.GetLength(1);
         string reversedWord = ReverseString(targetWord); // Reverse the target word
@@ -19,7 +43,7 @@ public class SPRulesManager : MonoBehaviour
 
                 if (result != null)
                 {
-                    EndGame(gameBoard, targetWord, result); // Word found, end the game
+                    EndGame(targetWord, result); // Word found, end the game
                     return result; // Return the coordinates of the word
                 }
             }
@@ -81,7 +105,7 @@ public class SPRulesManager : MonoBehaviour
         return new string(charArray);
     }
 
-    private void EndGame(Tile[,] gameBoard, string word, Vector2Int[] coordinates)
+    private void EndGame(string word, Vector2Int[] coordinates)
     {
         Debug.Log($"Game Over! The word '{word}' was found at:");
         foreach (var coord in coordinates)
@@ -96,7 +120,6 @@ public class SPRulesManager : MonoBehaviour
             }
         }
 
-        // Add additional game-over logic here (e.g., UI, stop gameplay, etc.)
+        // Additional game-over logic can be added here, e.g., stopping gameplay, showing UI, etc.
     }
-
 }

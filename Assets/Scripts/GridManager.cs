@@ -79,7 +79,7 @@ public class GridManager : MonoBehaviour
                     // Update the game board array with the placed tile
                     gameBoard[row, col] = tile; // Store the tile at the correct position
 
-                    rulesManager.CheckForWord("FOX", gameBoard); // Check for words after placing the tile
+                    rulesManager.CheckForWord("FOX"); // Check for words after placing the tile
 
                     return true; // Tile placed successfully
                 }
