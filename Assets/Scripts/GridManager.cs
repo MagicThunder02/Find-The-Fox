@@ -62,6 +62,14 @@ public class GridManager : MonoBehaviour
     // Place any tile (SPTile or TPTile) on the board
     public bool PlaceSPTile(Tile tile)
     {
+        if (rulesManager.gameEnded || tile.placed)
+        {
+            return false; // Game has ended, no more tiles can be placed
+        }
+
+        tile.placed = true; // Mark the tile as placed
+        tile.showFront(); // Show the front of the tile
+
         for (int row = 0; row < gridHeight; row++)
         {
             for (int col = 0; col < gridWidth; col++)
@@ -73,8 +81,8 @@ public class GridManager : MonoBehaviour
                     Vector3 worldPosition = grid[row, col].transform.position;
 
                     // Place the tile at this position
-                    tile.transform.position = worldPosition;
-                    tile.ShowFront(); // Show the front of the tile
+                    tile.transform.position = worldPosition + new Vector3(0, 0, -0.1f); // Slightly above the cell
+                    tile.showFront(); // Show the front of the tile
 
                     // Update the game board array with the placed tile
                     gameBoard[row, col] = tile; // Store the tile at the correct position
@@ -87,5 +95,17 @@ public class GridManager : MonoBehaviour
         }
 
         return false; // No empty spots were found
+    }
+
+    public void ResetBoard()
+    {
+        for (int row = 0; row < gridHeight; row++)
+        {
+            for (int col = 0; col < gridWidth; col++)
+            {
+                gameBoard[row, col] = null;
+            }
+        }
+        Debug.Log(gameBoard[0, 0]);
     }
 }

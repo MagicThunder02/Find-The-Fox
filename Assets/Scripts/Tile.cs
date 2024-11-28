@@ -2,17 +2,23 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    public bool placed = false; // Whether the tile is placed on the grid
     public Sprite frontSprite;  // The sprite for the letter side (front)
     public Sprite backSprite;   // The sprite for the back of the tile
     public string letter;       // The letter on the tile
     public SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer
 
-    public void ShowFront()
+    void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = backSprite; // Start with the back sprite
+    }
+    public void showFront()
     {
         spriteRenderer.sprite = frontSprite;
     }
 
-    public void ShowBack()
+    public void showBack()
     {
         spriteRenderer.sprite = backSprite;
     }

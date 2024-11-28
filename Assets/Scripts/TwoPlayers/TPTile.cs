@@ -12,13 +12,13 @@ public class TPTile : Tile
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Show the back sprite at the start
-        ShowBack();
+        showBack();
     }
 
     void OnMouseDown()
     {
         // Show the front (reveal the letter)
-        ShowFront();
+        showFront();
 
         // gridManager.PlaceTile(this);
 

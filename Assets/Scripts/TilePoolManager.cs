@@ -3,11 +3,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 
 
-public class PoolManager : MonoBehaviour
+public class TilePoolManager : MonoBehaviour
 {
     // public GameObject SPTilePrefab; // Prefab of the tile object
     // public GameObject TPTilePrefab; // Prefab of the tile object
-    public GameObject tilePrefab; // Prefab of the tile object
+    public Tile SPTilePrefab; // Prefab of the tile object
+    public Tile TPTilePrefab; // Prefab of the tile object
     public Sprite backSprite;       // Sprite for "F" tile
     public Sprite spriteF;       // Sprite for "F" tile
     public Sprite spriteO;       // Sprite for "O" tile
@@ -18,7 +19,7 @@ public class PoolManager : MonoBehaviour
     public Vector2 gridSize = new Vector2(4, 4); // Width and height of the grid (in tiles)
     public float cameraPadding = 1f; // Padding to ensure tiles stay within the camera view
 
-    private List<GameObject> tiles = new List<GameObject>();
+    private List<Tile> tiles = new List<Tile>();
     private string activeScene;
 
     void Start()
@@ -33,7 +34,7 @@ public class PoolManager : MonoBehaviour
         CreateTiles(5, spriteX, backSprite, "X"); // Create 5 "X" tiles
 
         // Scatter tiles above or below the grid
-        ScatterTilesAboveOrBelowGrid();
+        ScatterTiles();
     }
 
     // Method to create tiles
@@ -43,23 +44,21 @@ public class PoolManager : MonoBehaviour
         {
             if (activeScene == "SinglePlayerScene")
             {
-                // Add TPTile script for SinglePlayerScene
-                GameObject tile = Instantiate(tilePrefab, poolParent);
-                SPTile tileScript = tile.AddComponent<SPTile>();
-                tileScript.frontSprite = frontSprite;
-                tileScript.backSprite = backSprite;
-                tileScript.letter = letter;
+                // Add SPTile script for SinglePlayerScene
+                Tile tile = Instantiate(SPTilePrefab, poolParent).GetComponent<SPTile>();
+                tile.frontSprite = frontSprite;
+                tile.backSprite = backSprite;
+                tile.letter = letter;
                 tiles.Add(tile);
 
             }
             else
             {
-                // Add SPTile script for TwoPlayerScene
-                GameObject tile = Instantiate(tilePrefab, poolParent);
-                TPTile tileScript = tile.AddComponent<TPTile>();
-                tileScript.frontSprite = frontSprite;
-                tileScript.backSprite = backSprite;
-                tileScript.letter = letter;
+                // Add TPTile script for TwoPlayerScene
+                Tile tile = Instantiate(TPTilePrefab, poolParent).GetComponent<TPTile>();
+                tile.frontSprite = frontSprite;
+                tile.backSprite = backSprite;
+                tile.letter = letter;
                 tiles.Add(tile);
 
             }
@@ -68,10 +67,8 @@ public class PoolManager : MonoBehaviour
         }
     }
 
-
-
     // Scatter tiles randomly above or below the grid
-    void ScatterTilesAboveOrBelowGrid()
+    public void ScatterTiles()
     {
         Camera mainCamera = Camera.main;
 
@@ -85,8 +82,11 @@ public class PoolManager : MonoBehaviour
         float gridTop = gridCenter.y + gridSize.y / 2f;
         float gridBottom = gridCenter.y - gridSize.y / 2f;
 
-        foreach (GameObject tile in tiles)
+        foreach (Tile tile in tiles)
         {
+            tile.showBack();
+            tile.placed = false; // Whether the tile is placed on the grid
+
             // Randomize position within the camera's horizontal bounds
             float randomX = Random.Range(cameraLeft, cameraRight);
 

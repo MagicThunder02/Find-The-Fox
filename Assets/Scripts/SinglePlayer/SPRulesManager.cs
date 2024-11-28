@@ -1,14 +1,19 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SPRulesManager : MonoBehaviour
 {
+    public bool gameEnded = false;
+    public Button tryAgainButton;
     private GridManager gridManager; // Reference to the GridManager
+    private TilePoolManager tilePoolManager; // Reference to the GridManager
     private Tile[,] gameBoard;
 
     void Start()
     {
         // Get the GridManager from the scene
         gridManager = FindAnyObjectByType<GridManager>();
+        tilePoolManager = FindAnyObjectByType<TilePoolManager>();
 
         if (gridManager == null)
         {
@@ -17,6 +22,11 @@ public class SPRulesManager : MonoBehaviour
         else
         {
             gameBoard = gridManager.gameBoard;
+        }
+
+        if (tilePoolManager == null)
+        {
+            Debug.LogError("TilePoolManager not found in the scene.");
         }
     }
 
@@ -41,12 +51,24 @@ public class SPRulesManager : MonoBehaviour
                 Vector2Int[] result = CheckAllDirections(row, col, targetWord, gameBoard) ??
                                       CheckAllDirections(row, col, reversedWord, gameBoard);
 
+                // lose condition
                 if (result != null)
                 {
-                    EndGame(targetWord, result); // Word found, end the game
+                    GameOver(targetWord, result); // Word found, end the game
                     return result; // Return the coordinates of the word
                 }
+                else
+                {
+                    // win condition - check if the last cell is placed
+                    if (gameBoard[rows - 1, cols - 1] != null)
+                    {
+                        WinGame();
+                        return null;
+                    }
+                }
+
             }
+
         }
 
         return null; // Word not found
@@ -105,8 +127,10 @@ public class SPRulesManager : MonoBehaviour
         return new string(charArray);
     }
 
-    private void EndGame(string word, Vector2Int[] coordinates)
+    private void GameOver(string word, Vector2Int[] coordinates)
     {
+        gameEnded = true;
+
         Debug.Log($"Game Over! The word '{word}' was found at:");
         foreach (var coord in coordinates)
         {
@@ -119,7 +143,42 @@ public class SPRulesManager : MonoBehaviour
                 tile.Shine();
             }
         }
+        // Show the "Try Again" button
+        if (tryAgainButton != null)
+        {
+            tryAgainButton.gameObject.SetActive(true);
+        }
 
         // Additional game-over logic can be added here, e.g., stopping gameplay, showing UI, etc.
+    }
+
+    private void WinGame()
+    {
+        gameEnded = true;
+
+        Debug.Log("Congratulations! You've won the game!");
+
+        // Add your winning logic here (e.g., display a message or animation)
+        // Example: Show "You Win" UI
+        if (tryAgainButton != null)
+        {
+            tryAgainButton.gameObject.SetActive(true); // Show the "Try Again" button for restarting
+        }
+    }
+
+
+
+    public void OnTryAgainButtonPressed()
+    {
+        gameEnded = false;
+
+        Debug.Log("Try Again button pressed!");
+
+        // Reset the game board
+        gridManager.ResetBoard();
+        tilePoolManager.ScatterTiles();
+
+        tryAgainButton.gameObject.SetActive(false);
+
     }
 }

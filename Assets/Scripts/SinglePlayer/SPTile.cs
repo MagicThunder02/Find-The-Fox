@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class SPTile : Tile
 {
-
     private GridManager gridManager;  // Reference to the GridManager component
 
     void Start()
@@ -12,13 +11,11 @@ public class SPTile : Tile
         gridManager = FindAnyObjectByType<GridManager>();
 
         // Show the back sprite at the start
-        ShowBack();
+        showBack();
     }
 
     void OnMouseDown()
     {
-        // Show the front (reveal the letter)
-        ShowFront();
 
         gridManager.PlaceSPTile(this);
 
