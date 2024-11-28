@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 296677524216627047}
   - component: {fileID: 1001043305212428684}
-  - component: {fileID: 7424001755590982851}
-  m_Layer: 0
+  - component: {fileID: 6366415824351673945}
+  m_Layer: 7
   m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88,7 +88,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &7424001755590982851
+--- !u!61 &6366415824351673945
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

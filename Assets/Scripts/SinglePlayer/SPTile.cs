@@ -16,9 +16,7 @@ public class SPTile : Tile
 
     void OnMouseDown()
     {
-
         gridManager.PlaceSPTile(this);
-
     }
 
 }

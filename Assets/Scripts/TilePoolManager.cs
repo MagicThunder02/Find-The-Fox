@@ -46,6 +46,7 @@ public class TilePoolManager : MonoBehaviour
             {
                 // Add SPTile script for SinglePlayerScene
                 Tile tile = Instantiate(SPTilePrefab, poolParent).GetComponent<SPTile>();
+                tile.name = $"{letter} Tile {i + 1}";
                 tile.frontSprite = frontSprite;
                 tile.backSprite = backSprite;
                 tile.letter = letter;
@@ -56,6 +57,7 @@ public class TilePoolManager : MonoBehaviour
             {
                 // Add TPTile script for TwoPlayerScene
                 Tile tile = Instantiate(TPTilePrefab, poolParent).GetComponent<TPTile>();
+                tile.name = $"{letter} Tile {i + 1}";
                 tile.frontSprite = frontSprite;
                 tile.backSprite = backSprite;
                 tile.letter = letter;

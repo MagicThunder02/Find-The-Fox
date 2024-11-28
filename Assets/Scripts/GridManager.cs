@@ -7,14 +7,17 @@ public class GridManager : MonoBehaviour
     public int gridWidth = 4; // Width of the grid
     public int gridHeight = 4; // Height of the grid
 
-    public SPRulesManager rulesManager; // Reference to the rules manager component
+    public LayerMask gridLayerMask;
 
-    private GameObject[,] grid; // 2D array to store grid object references
+    public SPRulesManager SPRulesManager; // Reference to the rules manager component
+    public TPRulesManager TPRulesManager; // Reference to the rules manager component
+
+    private Cell[,] grid; // 2D array to store grid object references
     public Tile[,] gameBoard; // 2D array to store placed tiles (both SPTile and TPTile)
 
     void Awake()
     {
-        grid = new GameObject[gridHeight, gridWidth]; // Initialize the game board
+        grid = new Cell[gridHeight, gridWidth]; // Initialize the game board
         gameBoard = new Tile[gridHeight, gridWidth]; // Initialize the game board
         CreateGrid(); // Create the grid layout
     }
@@ -37,9 +40,14 @@ public class GridManager : MonoBehaviour
                     offsetY - (y * cellPrefab.transform.localScale.y) - cellPrefab.transform.localScale.y / 2,
                     0);
 
-                GameObject cell = Instantiate(cellPrefab, worldPosition, Quaternion.identity);
+                Cell cell = Instantiate(cellPrefab, worldPosition, Quaternion.identity).GetComponent<Cell>();
                 cell.transform.parent = transform;
 
+                cell.name = $"Cell ({y}, {x})";
+
+                // inverting x and y to match the grid layout
+                cell.gridX = y;
+                cell.gridY = x;
                 grid[y, x] = cell; // Initially, cells are empty (no tiles placed)
 
                 CreateTextObject($"{y}, {x}", worldPosition);
@@ -62,7 +70,7 @@ public class GridManager : MonoBehaviour
     // Place any tile (SPTile or TPTile) on the board
     public bool PlaceSPTile(Tile tile)
     {
-        if (rulesManager.gameEnded || tile.placed)
+        if (SPRulesManager.gameEnded || tile.placed)
         {
             return false; // Game has ended, no more tiles can be placed
         }
@@ -87,7 +95,7 @@ public class GridManager : MonoBehaviour
                     // Update the game board array with the placed tile
                     gameBoard[row, col] = tile; // Store the tile at the correct position
 
-                    rulesManager.CheckForWord("FOX"); // Check for words after placing the tile
+                    SPRulesManager.CheckForWord("FOX"); // Check for words after placing the tile
 
                     return true; // Tile placed successfully
                 }
@@ -108,4 +116,48 @@ public class GridManager : MonoBehaviour
         }
         Debug.Log(gameBoard[0, 0]);
     }
+
+
+    public void PlaceTPTile(TPTile tile)
+    {
+
+        // Get the world position of the tile
+        Vector3 worldPosition = tile.transform.position;
+
+        Collider2D detectedCollider = Physics2D.OverlapPoint(worldPosition, gridLayerMask);
+        Debug.Log($"Checking for collider at position {worldPosition}.");
+
+        if (detectedCollider != null)
+        {
+            Debug.Log($"Detected collider: {detectedCollider.name}");
+            Cell detectedCell = detectedCollider.GetComponent<Cell>();
+
+            if (detectedCell != null)
+            {
+                // Check if the cell is available
+                if (gameBoard[detectedCell.gridX, detectedCell.gridY] == null)
+                {
+                    // Place the tile in the grid
+                    gameBoard[detectedCell.gridX, detectedCell.gridY] = tile;
+
+                    // Snap the tile to the cell's position
+                    tile.transform.position = detectedCell.transform.position;
+                    tile.placed = true;
+                }
+                else
+                {
+                    Debug.Log("Cell is already occupied. Tile not placed.");
+                }
+            }
+            else
+            {
+                Debug.LogError("Collider does not have a Cell component.");
+            }
+        }
+        else
+        {
+            Debug.Log("No grid cell detected. Tile remains at its position.");
+        }
+    }
 }
+
