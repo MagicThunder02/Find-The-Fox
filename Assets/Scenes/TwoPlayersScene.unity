@@ -319,8 +319,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1686628031}
-        m_TargetAssemblyTypeName: SPRulesManager, Assembly-CSharp
+      - m_Target: {fileID: 1686628033}
+        m_TargetAssemblyTypeName: TPRulesManager, Assembly-CSharp
         m_MethodName: OnTryAgainButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -658,7 +658,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1686628032}
-  - component: {fileID: 1686628031}
+  - component: {fileID: 1686628033}
   m_Layer: 0
   m_Name: RulesManager
   m_TagString: Untagged
@@ -666,20 +666,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1686628031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1686628030}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 994525ee6b83bdc4d86a37ed4717735e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameEnded: 0
-  tryAgainButton: {fileID: 374712678}
 --- !u!4 &1686628032
 Transform:
   m_ObjectHideFlags: 0
@@ -695,6 +681,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1686628033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686628030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3bd229c37b5ee74dad1c0d8ce2f58de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameEnded: 0
+  tryAgainButton: {fileID: 374712678}
 --- !u!1 &1988278422
 GameObject:
   m_ObjectHideFlags: 0
@@ -727,7 +727,11 @@ MonoBehaviour:
   cellPrefab: {fileID: 1404976739590070054, guid: 96f10790fbf5ddd4599b2deffc46442a, type: 3}
   gridWidth: 4
   gridHeight: 4
-  rulesManager: {fileID: 1686628031}
+  gridLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  SPRulesManager: {fileID: 0}
+  TPRulesManager: {fileID: 1686628033}
 --- !u!4 &1988278424
 Transform:
   m_ObjectHideFlags: 0

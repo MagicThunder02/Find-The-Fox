@@ -4,6 +4,7 @@ public class TPTile : Tile
 {
     [SerializeField]
     private GridManager gridManager; // Reference to the GridManager
+    private TPRulesManager tpRulesManager; // Reference to the rules manager component
 
     private bool isDragging = false; // Track if the tile is being dragged
     private Vector3 offset;          // Offset between the tile's position and the mouse position
@@ -25,6 +26,10 @@ public class TPTile : Tile
         {
             gridManager = FindAnyObjectByType<GridManager>();
         }
+        if (tpRulesManager == null)
+        {
+            tpRulesManager = FindAnyObjectByType<TPRulesManager>();
+        }
 
         if (gridManager == null)
         {
@@ -35,6 +40,10 @@ public class TPTile : Tile
     void OnMouseDown()
     {
         // Start dragging and calculate the offset
+        if (placed)
+        {
+            return; // Game has ended, no more tiles can be placed
+        }
         isDragging = true;
         showFront(); // Show the front of the tile
 

@@ -118,18 +118,23 @@ public class GridManager : MonoBehaviour
     }
 
 
-    public void PlaceTPTile(TPTile tile)
+    public bool PlaceTPTile(TPTile tile)
     {
+        if (TPRulesManager.gameEnded || tile.placed)
+        {
+            return false; // Game has ended, no more tiles can be placed
+        }
+
 
         // Get the world position of the tile
         Vector3 worldPosition = tile.transform.position;
 
         Collider2D detectedCollider = Physics2D.OverlapPoint(worldPosition, gridLayerMask);
-        Debug.Log($"Checking for collider at position {worldPosition}.");
+        // Debug.Log($"Checking for collider at position {worldPosition}.");
 
         if (detectedCollider != null)
         {
-            Debug.Log($"Detected collider: {detectedCollider.name}");
+            // Debug.Log($"Detected collider: {detectedCollider.name}");
             Cell detectedCell = detectedCollider.GetComponent<Cell>();
 
             if (detectedCell != null)
@@ -143,21 +148,23 @@ public class GridManager : MonoBehaviour
                     // Snap the tile to the cell's position
                     tile.transform.position = detectedCell.transform.position;
                     tile.placed = true;
+
+                    TPRulesManager.CheckForWord("FOX"); // Check for words after placing the tile
+                    return true;
+
                 }
                 else
                 {
                     Debug.Log("Cell is already occupied. Tile not placed.");
                 }
             }
-            else
-            {
-                Debug.LogError("Collider does not have a Cell component.");
-            }
         }
         else
         {
             Debug.Log("No grid cell detected. Tile remains at its position.");
+            return false;
         }
+        return false;
     }
 }
 
