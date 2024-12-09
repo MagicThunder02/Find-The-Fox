@@ -67,7 +67,7 @@ public class TPTile : Tile
             isDragging = false;
 
             // Check for grid cell overlap
-            gridManager.PlaceTPTile(this);
+            tpRulesManager.PlaceTPTile(this);
         }
     }
 

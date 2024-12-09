@@ -7,8 +7,6 @@ public class GridManager : MonoBehaviour
     public int gridWidth = 4; // Width of the grid
     public int gridHeight = 4; // Height of the grid
 
-    public LayerMask gridLayerMask;
-
     public SPRulesManager SPRulesManager; // Reference to the rules manager component
     public TPRulesManager TPRulesManager; // Reference to the rules manager component
 
@@ -50,7 +48,7 @@ public class GridManager : MonoBehaviour
                 cell.gridY = x;
                 grid[y, x] = cell; // Initially, cells are empty (no tiles placed)
 
-                CreateTextObject($"{y}, {x}", worldPosition);
+                // CreateTextObject($"{y}, {x}", worldPosition);
             }
         }
     }
@@ -118,53 +116,6 @@ public class GridManager : MonoBehaviour
     }
 
 
-    public bool PlaceTPTile(TPTile tile)
-    {
-        if (TPRulesManager.gameEnded || tile.placed)
-        {
-            return false; // Game has ended, no more tiles can be placed
-        }
 
-
-        // Get the world position of the tile
-        Vector3 worldPosition = tile.transform.position;
-
-        Collider2D detectedCollider = Physics2D.OverlapPoint(worldPosition, gridLayerMask);
-        // Debug.Log($"Checking for collider at position {worldPosition}.");
-
-        if (detectedCollider != null)
-        {
-            // Debug.Log($"Detected collider: {detectedCollider.name}");
-            Cell detectedCell = detectedCollider.GetComponent<Cell>();
-
-            if (detectedCell != null)
-            {
-                // Check if the cell is available
-                if (gameBoard[detectedCell.gridX, detectedCell.gridY] == null)
-                {
-                    // Place the tile in the grid
-                    gameBoard[detectedCell.gridX, detectedCell.gridY] = tile;
-
-                    // Snap the tile to the cell's position
-                    tile.transform.position = detectedCell.transform.position;
-                    tile.placed = true;
-
-                    TPRulesManager.CheckForWord("FOX"); // Check for words after placing the tile
-                    return true;
-
-                }
-                else
-                {
-                    Debug.Log("Cell is already occupied. Tile not placed.");
-                }
-            }
-        }
-        else
-        {
-            Debug.Log("No grid cell detected. Tile remains at its position.");
-            return false;
-        }
-        return false;
-    }
 }
 

@@ -5,10 +5,14 @@ using System.Collections.Generic;
 public class TPRulesManager : MonoBehaviour
 {
     public bool gameEnded = false;
-    public Button tryAgainButton;
+    public GameOverManager GameOverManager; // Riferimento allo script del blur
+    public LayerMask gridLayerMask;
+
     private GridManager gridManager; // Reference to the GridManager
     private TilePoolManager tilePoolManager; // Reference to the GridManager
     private Tile[,] gameBoard;
+
+    private int playerTurn = 1; // Player 1 starts the game
 
     void Start()
     {
@@ -66,7 +70,7 @@ public class TPRulesManager : MonoBehaviour
         new Vector2Int(1, -1),  // Diagonal down-left
         new Vector2Int(-1, 1),  // Diagonal up-right
         new Vector2Int(-1, -1)  // Diagonal up-left
-    };
+        };
 
         // Check each F tile
         foreach (Vector2Int fTile in fTiles)
@@ -106,7 +110,7 @@ public class TPRulesManager : MonoBehaviour
                 int diagonalLength = getDiagonalLength(start, direction);
                 if (diagonalLength > 2)
                 {
-                    Debug.Log($"Diagonal wraparound '{row}' '{col}' 'diaglen' '{diagonalLength}'");
+                    // Debug.Log($"Diagonal wraparound '{row}' '{col}' 'diaglen' '{diagonalLength}'");
 
                     if (row < 0 || row >= rows || col < 0 || col >= cols)
                     {
@@ -114,7 +118,7 @@ public class TPRulesManager : MonoBehaviour
                         col = col - (diagonalLength) * direction.y;
                     }
 
-                    Debug.Log($"Diagonal wraparound 2 '{row}' '{col}'");
+                    // Debug.Log($"Diagonal wraparound 2 '{row}' '{col}'");
 
 
                 }
@@ -167,6 +171,58 @@ public class TPRulesManager : MonoBehaviour
         return positiveSteps + negativeSteps + 1;
     }
 
+    public bool PlaceTPTile(TPTile tile)
+    {
+        if (gameEnded || tile.placed)
+        {
+            return false; // Game has ended, no more tiles can be placed
+        }
+
+        // Get the world position of the tile
+        Vector3 worldPosition = tile.transform.position;
+
+        Collider2D detectedCollider = Physics2D.OverlapPoint(worldPosition, gridLayerMask);
+        // Debug.Log($"Checking for collider at position {worldPosition}.");
+
+        if (detectedCollider != null)
+        {
+            // Debug.Log($"Detected collider: {detectedCollider.name}");
+            Cell detectedCell = detectedCollider.GetComponent<Cell>();
+
+            if (detectedCell != null)
+            {
+                // Check if the cell is available
+                if (gameBoard[detectedCell.gridX, detectedCell.gridY] == null)
+                {
+                    // Place the tile in the grid
+                    gameBoard[detectedCell.gridX, detectedCell.gridY] = tile;
+
+                    // Snap the tile to the cell's position
+                    tile.transform.position = detectedCell.transform.position;
+                    tile.placed = true;
+
+
+
+                    CheckForWord("FOX"); // Check for words after placing the tile
+
+                    playerTurn = playerTurn == 1 ? 2 : 1; // Switch player turn 
+                    return true;
+
+                }
+                else
+                {
+                    Debug.Log("Cell is already occupied. Tile not placed.");
+                }
+            }
+        }
+        else
+        {
+            Debug.Log("No grid cell detected. Tile remains at its position.");
+            return false;
+        }
+        return false;
+    }
+
 
     private void GameOver(string word, Vector2Int[] coordinates)
     {
@@ -184,28 +240,10 @@ public class TPRulesManager : MonoBehaviour
                 tile.Shine();
             }
         }
-        // Show the "Try Again" button
-        if (tryAgainButton != null)
-        {
-            tryAgainButton.gameObject.SetActive(true);
-        }
 
+        GameOverManager.ShowGameOverUI(playerTurn);
         // Additional game-over logic can be added here, e.g., stopping gameplay, showing UI, etc.
     }
 
 
-
-    public void OnTryAgainButtonPressed()
-    {
-        gameEnded = false;
-
-        Debug.Log("Try Again button pressed!");
-
-        // Reset the game board
-        gridManager.ResetBoard();
-        tilePoolManager.ScatterTiles();
-
-        tryAgainButton.gameObject.SetActive(false);
-
-    }
 }
