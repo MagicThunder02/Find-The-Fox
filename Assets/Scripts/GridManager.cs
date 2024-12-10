@@ -74,7 +74,7 @@ public class GridManager : MonoBehaviour
         }
 
         tile.placed = true; // Mark the tile as placed
-        tile.showFront(); // Show the front of the tile
+        tile.ShowFront(); // Show the front of the tile
 
         for (int row = 0; row < gridHeight; row++)
         {
@@ -88,7 +88,7 @@ public class GridManager : MonoBehaviour
 
                     // Place the tile at this position
                     tile.transform.position = worldPosition + new Vector3(0, 0, -0.1f); // Slightly above the cell
-                    tile.showFront(); // Show the front of the tile
+                    tile.ShowFront(); // Show the front of the tile
 
                     // Update the game board array with the placed tile
                     gameBoard[row, col] = tile; // Store the tile at the correct position
@@ -105,6 +105,7 @@ public class GridManager : MonoBehaviour
 
     public void ResetBoard()
     {
+        // Clear the game board array
         for (int row = 0; row < gridHeight; row++)
         {
             for (int col = 0; col < gridWidth; col++)
@@ -112,10 +113,9 @@ public class GridManager : MonoBehaviour
                 gameBoard[row, col] = null;
             }
         }
-        Debug.Log(gameBoard[0, 0]);
+
+
     }
-
-
-
 }
+
 

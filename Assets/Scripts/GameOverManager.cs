@@ -89,7 +89,7 @@ public class GameOverManager : MonoBehaviour
 
         // Reset the game board
         gridManager.ResetBoard();
-        tilePoolManager.ScatterTiles();
+        tilePoolManager.ResetTilesBack();
 
         // Start the transition to hide the Game Over UI and remove the blur
         StartCoroutine(HideGameOverUIWithTransition());

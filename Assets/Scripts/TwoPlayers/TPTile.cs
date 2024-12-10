@@ -8,15 +8,13 @@ public class TPTile : Tile
 
     private bool isDragging = false; // Track if the tile is being dragged
     private Vector3 offset;          // Offset between the tile's position and the mouse position
+    private Vector3 originalPosition; // Original position of the tile before dragging
     private Camera mainCamera;       // Reference to the main camera
 
     void Start()
     {
-        // Get the SpriteRenderer component
-        spriteRenderer = GetComponent<SpriteRenderer>();
-
         // Show the back sprite at the start
-        showBack();
+        // ShowBack();
 
         // Cache the main camera
         mainCamera = Camera.main;
@@ -45,7 +43,11 @@ public class TPTile : Tile
             return; // Game has ended, no more tiles can be placed
         }
         isDragging = true;
-        showFront(); // Show the front of the tile
+
+        // Save the current position as the original position
+        originalPosition = transform.position;
+
+        ShowFront(); // Show the front of the tile
 
         offset = transform.position - GetMouseWorldPosition();
     }
@@ -66,8 +68,13 @@ public class TPTile : Tile
             // Stop dragging
             isDragging = false;
 
-            // Check for grid cell overlap
-            tpRulesManager.PlaceTPTile(this);
+            int placementResult = tpRulesManager.PlaceTPTile(this);
+
+            if (placementResult == -2)
+            {
+                // If placement is invalid, return the tile to its original position
+                StartCoroutine(ReturnToOriginalPosition());
+            }
         }
     }
 
@@ -77,5 +84,23 @@ public class TPTile : Tile
         Vector3 mousePosition = Input.mousePosition;
         mousePosition.z = 10f; // Adjust the z-axis to match the camera's distance
         return mainCamera.ScreenToWorldPoint(mousePosition);
+    }
+
+    private System.Collections.IEnumerator ReturnToOriginalPosition()
+    {
+        float duration = 0.1f; // Duration of the animation
+        float elapsedTime = 0f;
+        Vector3 startingPosition = transform.position;
+
+        while (elapsedTime < duration)
+        {
+            // Smoothly animate the tile back to its original position
+            transform.position = Vector3.Lerp(startingPosition, originalPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure the tile snaps exactly back to its original position
+        transform.position = originalPosition;
     }
 }

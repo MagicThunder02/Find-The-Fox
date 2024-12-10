@@ -13,14 +13,21 @@ public class Tile : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = backSprite; // Start with the back sprite
     }
-    public void showFront()
+
+    public void ShowFront()
     {
-        spriteRenderer.sprite = frontSprite;
+        if (spriteRenderer.sprite == backSprite)
+        {
+            Turn();
+        }
     }
 
-    public void showBack()
+    public void ShowBack()
     {
-        spriteRenderer.sprite = backSprite;
+        if (spriteRenderer.sprite == frontSprite)
+        {
+            Turn();
+        }
     }
 
     public void Shine()
@@ -49,5 +56,44 @@ public class Tile : MonoBehaviour
 
         // Restore the original scale
         transform.localScale = originalScale;
+    }
+
+    public void Turn()
+    {
+        StartCoroutine(TurnEffect());
+    }
+
+    private System.Collections.IEnumerator TurnEffect()
+    {
+        float duration = 0.2f; // Total duration of the turn effect
+        float halfDuration = duration / 2;
+        float elapsedTime = 0f;
+
+        // First half: Rotate to 90 degrees (midpoint)
+        while (elapsedTime < halfDuration)
+        {
+            float angle = Mathf.Lerp(0, 90, elapsedTime / halfDuration);
+            transform.localRotation = Quaternion.Euler(0, angle, 0);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Switch the sprite at the midpoint of the flip
+        spriteRenderer.sprite = (spriteRenderer.sprite == backSprite) ? frontSprite : backSprite;
+
+        // Second half: Rotate back to 0 degrees
+        elapsedTime = 0f;
+        while (elapsedTime < halfDuration)
+        {
+            float angle = Mathf.Lerp(90, 0, elapsedTime / halfDuration);
+            transform.localRotation = Quaternion.Euler(0, angle, 0);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure rotation is fully reset to zero
+        transform.localRotation = Quaternion.identity;
     }
 }

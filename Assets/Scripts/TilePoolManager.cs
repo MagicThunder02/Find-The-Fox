@@ -1,111 +1,167 @@
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 
 public class TilePoolManager : MonoBehaviour
 {
-    // public GameObject SPTilePrefab; // Prefab of the tile object
-    // public GameObject TPTilePrefab; // Prefab of the tile object
-    public Tile SPTilePrefab; // Prefab of the tile object
-    public Tile TPTilePrefab; // Prefab of the tile object
-    public Sprite backSprite;       // Sprite for "F" tile
-    public Sprite spriteF;       // Sprite for "F" tile
-    public Sprite spriteO;       // Sprite for "O" tile
-    public Sprite spriteX;       // Sprite for "X" tile
+    [Header("Tile Prefabs")]
+    public Tile SPTilePrefab; // Prefab for SinglePlayerScene tiles
+    public Tile TPTilePrefab; // Prefab for TwoPlayerScene tiles
 
-    public Transform poolParent; // Parent object for organization
-    public Vector2 gridCenter;   // Center position of the grid
-    public Vector2 gridSize = new Vector2(4, 4); // Width and height of the grid (in tiles)
-    public float cameraPadding = 1f; // Padding to ensure tiles stay within the camera view
+    [Header("Tile Sprites")]
+    public Sprite backSprite;
+    public Sprite spriteF;
+    public Sprite spriteO;
+    public Sprite spriteX;
+
+    [Header("Grid Settings")]
+    public Transform poolParent;
+    public Vector2 gridCenter;
+    public Vector2 gridSize = new Vector2(4, 4);
+    public float cameraPadding = 1f;
 
     private List<Tile> tiles = new List<Tile>();
     private string activeScene;
 
-    void Start()
+    private void Start()
     {
-        // Detect the active scene
         activeScene = SceneManager.GetActiveScene().name;
 
+        // Create tiles for each letter
+        CreateTiles(5, spriteF, "F");
+        CreateTiles(6, spriteO, "O");
+        CreateTiles(5, spriteX, "X");
 
-        // Create tiles
-        CreateTiles(5, spriteF, backSprite, "F"); // Create 5 "F" tiles
-        CreateTiles(6, spriteO, backSprite, "O"); // Create 6 "O" tiles
-        CreateTiles(5, spriteX, backSprite, "X"); // Create 5 "X" tiles
-
-        // Scatter tiles above or below the grid
+        // Scatter tiles after placing them in the center
         ScatterTiles();
     }
 
-    // Method to create tiles
-    void CreateTiles(int count, Sprite frontSprite, Sprite backSprite, string letter)
+    /// <summary>
+    /// Creates a specified number of tiles with given properties.
+    /// </summary>
+    private void CreateTiles(int count, Sprite frontSprite, string letter)
     {
         for (int i = 0; i < count; i++)
         {
-            if (activeScene == "SinglePlayerScene")
-            {
-                // Add SPTile script for SinglePlayerScene
-                Tile tile = Instantiate(SPTilePrefab, poolParent).GetComponent<SPTile>();
-                tile.name = $"{letter} Tile {i + 1}";
-                tile.frontSprite = frontSprite;
-                tile.backSprite = backSprite;
-                tile.letter = letter;
-                tiles.Add(tile);
+            // Determine which prefab to use based on the active scene
+            Tile tilePrefab = activeScene == "SinglePlayerScene" ? SPTilePrefab : TPTilePrefab;
 
-            }
-            else
-            {
-                // Add TPTile script for TwoPlayerScene
-                Tile tile = Instantiate(TPTilePrefab, poolParent).GetComponent<TPTile>();
-                tile.name = $"{letter} Tile {i + 1}";
-                tile.frontSprite = frontSprite;
-                tile.backSprite = backSprite;
-                tile.letter = letter;
-                tiles.Add(tile);
-
-            }
-
-
+            // Instantiate the tile and configure its properties
+            Tile tile = Instantiate(tilePrefab, poolParent);
+            tile.name = $"{letter} Tile {i + 1}";
+            tile.frontSprite = frontSprite;
+            tile.backSprite = backSprite;
+            tile.letter = letter;
+            tile.spriteRenderer.sprite = backSprite;
+            tile.transform.position = gridCenter; // Start at the grid center
+            tiles.Add(tile);
         }
     }
 
-    // Scatter tiles randomly above or below the grid
+    /// <summary>
+    /// Starts scattering tiles animation.
+    /// </summary>
     public void ScatterTiles()
+    {
+        StartCoroutine(ScatterTilesAnimation());
+    }
+
+    /// <summary>
+    /// Resets all tiles to their back side and scatters them again.
+    /// </summary>
+    public void ResetTilesBack()
+    {
+        StartCoroutine(ResetTilesBackAnimation());
+    }
+
+    /// <summary>
+    /// Handles the full reset animation: turn tiles, move to center, scatter.
+    /// </summary>
+    private IEnumerator ResetTilesBackAnimation()
+    {
+        yield return StartCoroutine(ResetBoardSequentially());
+        yield return StartCoroutine(MoveTilesToCenter());
+
+        yield return new WaitForSeconds(0.5f);
+
+        yield return StartCoroutine(ScatterTilesAnimation());
+    }
+
+    /// <summary>
+    /// Animates a tile's movement to a target position.
+    /// </summary>
+    private IEnumerator AnimateTileMovement(Tile tile, Vector2 targetPosition)
+    {
+        float duration = 0.3f;
+        float elapsedTime = 0f;
+        Vector2 startingPosition = tile.transform.position;
+
+        while (elapsedTime < duration)
+        {
+            tile.transform.position = Vector2.Lerp(startingPosition, targetPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        tile.transform.position = targetPosition;
+    }
+
+    /// <summary>
+    /// Turns all tiles back sequentially.
+    /// </summary>
+    private IEnumerator ResetBoardSequentially()
+    {
+        foreach (Tile tile in tiles)
+        {
+            tile.ShowBack();
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    /// <summary>
+    /// Moves all tiles to the grid center sequentially.
+    /// </summary>
+    private IEnumerator MoveTilesToCenter()
+    {
+        foreach (Tile tile in tiles)
+        {
+            StartCoroutine(AnimateTileMovement(tile, gridCenter));
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    /// <summary>
+    /// Scatters tiles randomly within the camera bounds.
+    /// </summary>
+    private IEnumerator ScatterTilesAnimation()
     {
         Camera mainCamera = Camera.main;
 
-        // Get the camera's visible boundaries in world space
+        // Calculate camera boundaries
         float cameraHalfHeight = mainCamera.orthographicSize;
         float cameraHalfWidth = cameraHalfHeight * mainCamera.aspect;
-
         float cameraLeft = mainCamera.transform.position.x - cameraHalfWidth + cameraPadding;
         float cameraRight = mainCamera.transform.position.x + cameraHalfWidth - cameraPadding;
-
         float gridTop = gridCenter.y + gridSize.y / 2f;
         float gridBottom = gridCenter.y - gridSize.y / 2f;
 
         foreach (Tile tile in tiles)
         {
-            tile.showBack();
-            tile.placed = false; // Whether the tile is placed on the grid
+            tile.placed = false;
 
-            // Randomize position within the camera's horizontal bounds
+            // Determine random position above or below the grid
             float randomX = Random.Range(cameraLeft, cameraRight);
+            float randomY = Random.value > 0.5f
+                ? Random.Range(gridTop + 1f, gridTop + 3f) // Above the grid
+                : Random.Range(gridBottom - 3f, gridBottom - 1f); // Below the grid
 
-            // Randomly place above or below the grid
-            float randomY;
-            if (Random.value > 0.5f)
-            {
-                // Place above the grid
-                randomY = Random.Range(gridTop + 1f, gridTop + 3f); // Offset above the grid
-            }
-            else
-            {
-                // Place below the grid
-                randomY = Random.Range(gridBottom - 3f, gridBottom - 1f); // Offset below the grid
-            }
-
-            tile.transform.position = new Vector2(randomX, randomY);
+            Vector2 targetPosition = new Vector2(randomX, randomY);
+            StartCoroutine(AnimateTileMovement(tile, targetPosition));
+            yield return new WaitForSeconds(0.1f);
         }
     }
+
+
+
 }

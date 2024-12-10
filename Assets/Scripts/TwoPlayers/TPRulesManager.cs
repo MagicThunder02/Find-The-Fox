@@ -171,11 +171,11 @@ public class TPRulesManager : MonoBehaviour
         return positiveSteps + negativeSteps + 1;
     }
 
-    public bool PlaceTPTile(TPTile tile)
+    public int PlaceTPTile(TPTile tile)
     {
         if (gameEnded || tile.placed)
         {
-            return false; // Game has ended, no more tiles can be placed
+            return 0; // Game has ended, no more tiles can be placed
         }
 
         // Get the world position of the tile
@@ -206,21 +206,22 @@ public class TPRulesManager : MonoBehaviour
                     CheckForWord("FOX"); // Check for words after placing the tile
 
                     playerTurn = playerTurn == 1 ? 2 : 1; // Switch player turn 
-                    return true;
+                    return 1;
 
                 }
                 else
                 {
                     Debug.Log("Cell is already occupied. Tile not placed.");
+                    return -2;
                 }
             }
         }
         else
         {
             Debug.Log("No grid cell detected. Tile remains at its position.");
-            return false;
+            return -1;
         }
-        return false;
+        return 0;
     }
 
 

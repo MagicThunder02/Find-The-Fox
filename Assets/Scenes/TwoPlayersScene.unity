@@ -467,8 +467,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1686628033}
-        m_TargetAssemblyTypeName: TPRulesManager, Assembly-CSharp
+      - m_Target: {fileID: 1911467863}
+        m_TargetAssemblyTypeName: GameOverManager, Assembly-CSharp
         m_MethodName: OnTryAgainButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -478,7 +478,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 1
 --- !u!114 &433480615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -994,6 +994,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameEnded: 0
   GameOverManager: {fileID: 1911467863}
+  gridLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &1911467862
 GameObject:
   m_ObjectHideFlags: 0
@@ -1030,7 +1033,7 @@ MonoBehaviour:
   viewBoardButton: {fileID: 0}
   TPRulesManager: {fileID: 1686628033}
   postProcessingVolume: {fileID: 0}
-  blurDuration: 1
+  blurDuration: 0.5
   maxBlurIntensity: 5
   uiFadeDuration: 1
 --- !u!4 &1911467864
@@ -1080,9 +1083,6 @@ MonoBehaviour:
   cellPrefab: {fileID: 1404976739590070054, guid: 96f10790fbf5ddd4599b2deffc46442a, type: 3}
   gridWidth: 4
   gridHeight: 4
-  gridLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
   SPRulesManager: {fileID: 0}
   TPRulesManager: {fileID: 1686628033}
 --- !u!4 &1988278424
@@ -1150,7 +1150,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2120443718
 RectTransform:
   m_ObjectHideFlags: 0

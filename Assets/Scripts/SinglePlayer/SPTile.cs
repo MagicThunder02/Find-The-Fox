@@ -11,7 +11,7 @@ public class SPTile : Tile
         gridManager = FindAnyObjectByType<GridManager>();
 
         // Show the back sprite at the start
-        showBack();
+        // ShowBack();
     }
 
     void OnMouseDown()
