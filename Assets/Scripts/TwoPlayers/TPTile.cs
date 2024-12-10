@@ -10,16 +10,18 @@ public class TPTile : Tile
     private Vector3 offset;          // Offset between the tile's position and the mouse position
     private Vector3 originalPosition; // Original position of the tile before dragging
     private Camera mainCamera;       // Reference to the main camera
+    private int originalSortingOrder; // Original sorting order of the tile
+    private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer
 
     void Start()
     {
-        // Show the back sprite at the start
-        // ShowBack();
-
         // Cache the main camera
         mainCamera = Camera.main;
 
-        // Get the GridManager from the scene if not assigned
+        // Get the SpriteRenderer component
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // Get the GridManager and TPRulesManager from the scene if not assigned
         if (gridManager == null)
         {
             gridManager = FindAnyObjectByType<GridManager>();
@@ -42,10 +44,15 @@ public class TPTile : Tile
         {
             return; // Game has ended, no more tiles can be placed
         }
+
         isDragging = true;
 
         // Save the current position as the original position
         originalPosition = transform.position;
+
+        // Save the original sorting order and bring the tile to the front
+        originalSortingOrder = spriteRenderer.sortingOrder;
+        spriteRenderer.sortingOrder = 100; // A high value to ensure it's rendered above other tiles
 
         ShowFront(); // Show the front of the tile
 
@@ -68,6 +75,10 @@ public class TPTile : Tile
             // Stop dragging
             isDragging = false;
 
+            // Reset the sorting order back to its original value
+            spriteRenderer.sortingOrder = originalSortingOrder;
+
+            // Try placing the tile
             int placementResult = tpRulesManager.PlaceTPTile(this);
 
             if (placementResult == -2)
