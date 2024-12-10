@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Collections;
 
 public class TPRulesManager : MonoBehaviour
 {
@@ -85,7 +86,7 @@ public class TPRulesManager : MonoBehaviour
                 Vector2Int[] coordinates = CheckDirectionForWord(fTile, direction, targetWord);
                 if (coordinates != null)
                 {
-                    GameOver(targetWord, coordinates); // Word found, end the game
+                    GameOver(1, targetWord, coordinates); // Word found, end the game
                     return coordinates; // Return the coordinates of the word
                 }
             }
@@ -201,11 +202,33 @@ public class TPRulesManager : MonoBehaviour
                     tile.transform.position = detectedCell.transform.position;
                     tile.placed = true;
 
-
-
                     CheckForWord("FOX"); // Check for words after placing the tile
 
                     playerTurn = playerTurn == 1 ? 2 : 1; // Switch player turn 
+
+                    // Check if all tiles are placed
+                    bool allTilesPlaced = true;
+                    for (int row = 0; row < gameBoard.GetLength(0); row++)
+                    {
+                        for (int col = 0; col < gameBoard.GetLength(1); col++)
+                        {
+                            if (gameBoard[row, col] == null)
+                            {
+                                allTilesPlaced = false;
+                                break;
+                            }
+                        }
+                        if (!allTilesPlaced)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (allTilesPlaced)
+                    {
+                        GameOver(0, "FOX", null); // All tiles placed, end the game with a draw
+                    }
+
                     return 1;
 
                 }
@@ -225,26 +248,41 @@ public class TPRulesManager : MonoBehaviour
     }
 
 
-    private void GameOver(string word, Vector2Int[] coordinates)
+    private void GameOver(int state, string word, Vector2Int[] coordinates)
     {
         gameEnded = true;
 
-        Debug.Log($"Game Over! The word '{word}' was found at:");
-        foreach (var coord in coordinates)
+        if (state == 1)
         {
-            Debug.Log($"({coord.x}, {coord.y})");
-
-            // Trigger the shine effect on the corresponding tile
-            Tile tile = gameBoard[coord.x, coord.y];
-            if (tile != null)
+            Debug.Log($"Game Over! The word '{word}' was found at:");
+            foreach (var coord in coordinates)
             {
-                tile.Shine();
+                Debug.Log($"({coord.x}, {coord.y})");
+
+                // Trigger the shine effect on the corresponding tile
+                Tile tile = gameBoard[coord.x, coord.y];
+                if (tile != null)
+                {
+                    tile.Shine();
+                }
             }
+
+            StartCoroutine(ShowGameOverWithDelay(playerTurn));
+        }
+        else
+        {
+            Debug.Log("It's a draw!");
+            StartCoroutine(ShowGameOverWithDelay(0));
         }
 
-        GameOverManager.ShowGameOverUI(playerTurn);
         // Additional game-over logic can be added here, e.g., stopping gameplay, showing UI, etc.
     }
 
+    private IEnumerator ShowGameOverWithDelay(int playerTurn)
+    {
+        yield return new WaitForSeconds(0.5f);
+        GameOverManager.ShowGameOverUI(playerTurn);
+        yield return null;
+    }
 
 }

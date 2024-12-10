@@ -50,7 +50,14 @@ public class GameOverManager : MonoBehaviour
         gameOverCanvas.SetActive(true);
 
         // Set the win message text
-        gameOverText.text = "Player " + playerNumber + " Wins!";
+        if (playerNumber == 0)
+        {
+            gameOverText.text = "It's a draw!";
+        }
+        else
+        {
+            gameOverText.text = "Player " + playerNumber + " Wins!";
+        }
 
         // Start the transition (fade in UI and apply blur effect)
         StartCoroutine(ShowGameOverUIWithTransition());

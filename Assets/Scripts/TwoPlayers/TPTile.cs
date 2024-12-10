@@ -11,7 +11,6 @@ public class TPTile : Tile
     private Vector3 originalPosition; // Original position of the tile before dragging
     private Camera mainCamera;       // Reference to the main camera
     private int originalSortingOrder; // Original sorting order of the tile
-    private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer
 
     void Start()
     {
@@ -19,8 +18,6 @@ public class TPTile : Tile
         mainCamera = Camera.main;
 
         // Get the SpriteRenderer component
-        spriteRenderer = GetComponent<SpriteRenderer>();
-
         // Get the GridManager and TPRulesManager from the scene if not assigned
         if (gridManager == null)
         {

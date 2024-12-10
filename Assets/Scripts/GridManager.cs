@@ -15,6 +15,7 @@ public class GridManager : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log("GridManager Awake");
         grid = new Cell[gridHeight, gridWidth]; // Initialize the game board
         gameBoard = new Tile[gridHeight, gridWidth]; // Initialize the game board
         CreateGrid(); // Create the grid layout
