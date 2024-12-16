@@ -179,6 +179,13 @@ public class SPRulesManager : MonoBehaviour
 
         if (state == 1)
         {
+
+            Debug.Log("You Won!");
+
+            StartCoroutine(ShowGameOverWithDelay(1));
+        }
+        else
+        {
             Debug.Log($"Game Over! The word '{word}' was found at:");
             foreach (var coord in coordinates)
             {
@@ -191,12 +198,6 @@ public class SPRulesManager : MonoBehaviour
                     tile.Shine();
                 }
             }
-
-            StartCoroutine(ShowGameOverWithDelay(1));
-        }
-        else
-        {
-            Debug.Log("Game over!");
             StartCoroutine(ShowGameOverWithDelay(0));
         }
 

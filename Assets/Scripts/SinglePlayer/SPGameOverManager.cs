@@ -16,9 +16,9 @@ public class SPGameOverManager : MonoBehaviour
     private TilePoolManager tilePoolManager; // Reference to the GridManager
 
     public Volume postProcessingVolume;  // Reference to the Post-Processing Volume for blur
-    public float blurDuration = 0.5f;      // Duration to apply the blur effect
-    public float maxBlurIntensity = 5f;  // Maximum blur intensity
-    public float uiFadeDuration = 1f;    // Duration for UI to fade in
+    private float blurDuration = 1.5f;      // Duration to apply the blur effect
+    private float maxBlurIntensity = 1.5f;  // Maximum blur intensity
+    private float uiFadeDuration = 2f;    // Duration for UI to fade in
 
     private void Start()
     {
@@ -37,10 +37,6 @@ public class SPGameOverManager : MonoBehaviour
 
         // Initially hide the game over UI
         gameOverCanvas.SetActive(false);
-
-        // Start with no blur effect and UI invisible
-        SetBlurIntensity(0f);
-        SetUIAlpha(0f);
     }
 
     public void ShowGameOverUI(int playerNumber)
@@ -72,21 +68,14 @@ public class SPGameOverManager : MonoBehaviour
         {
             canvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsedTime / uiFadeDuration);
             elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        canvasGroup.alpha = 1f;
 
-        // Gradually apply blur effect
-        elapsedTime = 0f;
-        while (elapsedTime < blurDuration)
-        {
-            float blurValue = Mathf.Lerp(0f, maxBlurIntensity, elapsedTime / blurDuration);
-            SetBlurIntensity(blurValue);
+            float blurValue = Mathf.Lerp(5f, maxBlurIntensity, elapsedTime / blurDuration);
+            ApplyBlur(true, blurValue);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        SetBlurIntensity(maxBlurIntensity);
     }
+
 
     public void OnTryAgainButtonPressed()
     {
@@ -102,6 +91,7 @@ public class SPGameOverManager : MonoBehaviour
         StartCoroutine(HideGameOverUIWithTransition());
     }
 
+
     private IEnumerator HideGameOverUIWithTransition()
     {
         Debug.Log("Hiding Game Over UI with transition...");
@@ -112,34 +102,27 @@ public class SPGameOverManager : MonoBehaviour
         {
             canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsedTime / uiFadeDuration);
             elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-        canvasGroup.alpha = 0f;
 
-        // Gradually remove blur effect
-        elapsedTime = 0f;
-        while (elapsedTime < blurDuration)
-        {
-            float blurValue = Mathf.Lerp(maxBlurIntensity, 0f, elapsedTime / blurDuration);
-            SetBlurIntensity(blurValue);
+            float blurValue = Mathf.Lerp(maxBlurIntensity, 5f, elapsedTime / blurDuration);
+            ApplyBlur(true, blurValue);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        SetBlurIntensity(0f);
 
         // Hide the Game Over UI after fade out (optional, if needed)
         gameOverCanvas.SetActive(false);
     }
 
-    // Function to set blur intensity (using Post-Processing Volume)
-    private void SetBlurIntensity(float intensity)
+    // Function to apply or remove blur effect
+    private void ApplyBlur(bool enable, float intensity = 0f)
     {
-        if (postProcessingVolume != null)
+        if (postProcessingVolume != null && postProcessingVolume.profile.TryGet<DepthOfField>(out DepthOfField dof))
         {
-            if (postProcessingVolume.profile.TryGet<DepthOfField>(out DepthOfField dof))
+            dof.active = enable; // Enable or disable the blur effect
+            if (enable)
             {
-                dof.active = true;
-                dof.focusDistance.value = intensity; // Adjust blur effect based on intensity
+                dof.focusDistance.overrideState = true;
+                dof.focusDistance.value = intensity; // Adjust the blur intensity
             }
         }
     }
