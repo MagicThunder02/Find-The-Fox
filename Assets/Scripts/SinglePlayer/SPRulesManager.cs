@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using System.Collections;
 
 public class SPRulesManager : MonoBehaviour
 {
     public bool gameEnded = false;
     public Button tryAgainButton;
+    public SPGameOverManager GameOverManager; // Riferimento allo script del blur
     private GridManager gridManager; // Reference to the GridManager
     private TilePoolManager tilePoolManager; // Reference to the GridManager
     private Tile[,] gameBoard;
+    private Cell[,] grid;
 
     void Start()
     {
@@ -22,6 +26,7 @@ public class SPRulesManager : MonoBehaviour
         else
         {
             gameBoard = gridManager.gameBoard;
+            grid = gridManager.grid;
         }
 
         if (tilePoolManager == null)
@@ -29,6 +34,47 @@ public class SPRulesManager : MonoBehaviour
             Debug.LogError("TilePoolManager not found in the scene.");
         }
     }
+    // Place any tile (SPTile or TPTile) on the board
+    public bool PlaceSPTile(Tile tile)
+    {
+        if (gameEnded || tile.placed)
+        {
+            return false; // Game has ended, no more tiles can be placed
+        }
+
+        tile.placed = true; // Mark the tile as placed
+
+        int rows = gameBoard.GetLength(0);
+        int cols = gameBoard.GetLength(1);
+
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                if (gameBoard[row, col] == null) // Find the first empty cell
+                {
+                    // Get the world position of the first empty cell
+                    // Debug.Log("Placing tile at grid: " + grid[row, col]);
+                    Vector3 worldPosition = grid[row, col].transform.position;
+
+                    // Place the tile at this position
+                    tile.transform.position = worldPosition + new Vector3(0, 0, -0.1f); // Slightly above the cell
+                    tile.ShowFront(); // Show the front of the tile
+
+                    // Update the game board array with the placed tile
+                    gameBoard[row, col] = tile; // Store the tile at the correct position
+
+                    CheckForWord("FOX"); // Check for words after placing the tile
+
+                    return true; // Tile placed successfully
+                }
+            }
+        }
+
+        return false; // No empty spots were found
+    }
+
+
 
     public Vector2Int[] CheckForWord(string targetWord)
     {
@@ -54,7 +100,7 @@ public class SPRulesManager : MonoBehaviour
                 // lose condition
                 if (result != null)
                 {
-                    GameOver(targetWord, result); // Word found, end the game
+                    GameOver(0, targetWord, result); // Word found, end the game
                     return result; // Return the coordinates of the word
                 }
                 else
@@ -62,7 +108,7 @@ public class SPRulesManager : MonoBehaviour
                     // win condition - check if the last cell is placed
                     if (gameBoard[rows - 1, cols - 1] != null)
                     {
-                        WinGame();
+                        GameOver(1, targetWord, result);
                         return null;
                     }
                 }
@@ -127,58 +173,40 @@ public class SPRulesManager : MonoBehaviour
         return new string(charArray);
     }
 
-    private void GameOver(string word, Vector2Int[] coordinates)
+    private void GameOver(int state, string word, Vector2Int[] coordinates)
     {
         gameEnded = true;
 
-        Debug.Log($"Game Over! The word '{word}' was found at:");
-        foreach (var coord in coordinates)
+        if (state == 1)
         {
-            Debug.Log($"({coord.x}, {coord.y})");
-
-            // Trigger the shine effect on the corresponding tile
-            Tile tile = gameBoard[coord.x, coord.y];
-            if (tile != null)
+            Debug.Log($"Game Over! The word '{word}' was found at:");
+            foreach (var coord in coordinates)
             {
-                tile.Shine();
+                Debug.Log($"({coord.x}, {coord.y})");
+
+                // Trigger the shine effect on the corresponding tile
+                Tile tile = gameBoard[coord.x, coord.y];
+                if (tile != null)
+                {
+                    tile.Shine();
+                }
             }
+
+            StartCoroutine(ShowGameOverWithDelay(1));
         }
-        // Show the "Try Again" button
-        if (tryAgainButton != null)
+        else
         {
-            tryAgainButton.gameObject.SetActive(true);
+            Debug.Log("Game over!");
+            StartCoroutine(ShowGameOverWithDelay(0));
         }
 
         // Additional game-over logic can be added here, e.g., stopping gameplay, showing UI, etc.
     }
 
-    private void WinGame()
+    private IEnumerator ShowGameOverWithDelay(int state)
     {
-        gameEnded = true;
-
-        Debug.Log("Congratulations! You've won the game!");
-
-        // Add your winning logic here (e.g., display a message or animation)
-        // Example: Show "You Win" UI
-        if (tryAgainButton != null)
-        {
-            tryAgainButton.gameObject.SetActive(true); // Show the "Try Again" button for restarting
-        }
-    }
-
-
-
-    public void OnTryAgainButtonPressed()
-    {
-        gameEnded = false;
-
-        Debug.Log("Try Again button pressed!");
-
-        // Reset the game board
-        gridManager.ResetBoard();
-        tilePoolManager.ScatterTiles();
-
-        tryAgainButton.gameObject.SetActive(false);
-
+        yield return new WaitForSeconds(0.5f);
+        GameOverManager.ShowGameOverUI(state);
+        yield return null;
     }
 }

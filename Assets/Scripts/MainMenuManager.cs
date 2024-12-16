@@ -3,6 +3,10 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
+    public void PlayMainMenu()
+    {
+        SceneManager.LoadScene("MainMenuScene"); // Replace with the actual name of your two-player scene
+    }
     // This method will load the Singleplayer scene
     public void PlaySingleplayer()
     {

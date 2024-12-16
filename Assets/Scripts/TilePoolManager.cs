@@ -153,8 +153,8 @@ public class TilePoolManager : MonoBehaviour
             // Determine random position above or below the grid
             float randomX = Random.Range(cameraLeft, cameraRight);
             float randomY = Random.value > 0.5f
-                ? Random.Range(gridTop + 1f, gridTop + 3f) // Above the grid
-                : Random.Range(gridBottom - 3f, gridBottom - 1f); // Below the grid
+                ? Random.Range(gridTop + 1f, gridTop + 2.5f) // Above the grid
+                : Random.Range(gridBottom - 2.5f, gridBottom - 1f); // Below the grid
 
             Vector2 targetPosition = new Vector2(randomX, randomY);
             StartCoroutine(AnimateTileMovement(tile, targetPosition));

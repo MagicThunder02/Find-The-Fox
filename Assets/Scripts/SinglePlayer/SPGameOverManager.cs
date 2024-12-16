@@ -5,14 +5,12 @@ using UnityEngine.Rendering.Universal;
 using TMPro; // Add this for TextMeshProUGUI
 using UnityEngine.UI;
 
-public class GameOverManager : MonoBehaviour
+public class SPGameOverManager : MonoBehaviour
 {
     public GameObject gameOverCanvas; // The canvas with the "Player X Wins" message
     public TextMeshProUGUI gameOverText; // The prefab for the "Player X Wins" text
     public Button playAgainButton;
-    public Button mainMenuButton;
-    public Button viewBoardButton;
-    public TPRulesManager TPRulesManager; // Reference to the GridManager
+    public SPRulesManager SPRulesManager; // Reference to the GridManager
 
     private GridManager gridManager; // Reference to the GridManager
     private TilePoolManager tilePoolManager; // Reference to the GridManager
@@ -52,12 +50,14 @@ public class GameOverManager : MonoBehaviour
         // Set the win message text
         if (playerNumber == 0)
         {
-            gameOverText.text = "It's a draw!";
+            gameOverText.text = "You've found a Fox \nGame Over!";
         }
         else
         {
-            gameOverText.text = "Player " + playerNumber + " Wins!";
+            gameOverText.text = "You won!";
         }
+
+        Debug.Log("Game Over! Player " + playerNumber + " wins!");
 
         // Start the transition (fade in UI and apply blur effect)
         StartCoroutine(ShowGameOverUIWithTransition());
@@ -90,7 +90,7 @@ public class GameOverManager : MonoBehaviour
 
     public void OnTryAgainButtonPressed()
     {
-        TPRulesManager.gameEnded = false;
+        SPRulesManager.gameEnded = false;
 
         Debug.Log("Try Again button pressed!");
 
@@ -104,6 +104,7 @@ public class GameOverManager : MonoBehaviour
 
     private IEnumerator HideGameOverUIWithTransition()
     {
+        Debug.Log("Hiding Game Over UI with transition...");
         // Fade out the UI (using CanvasGroup alpha)
         float elapsedTime = 0f;
         CanvasGroup canvasGroup = gameOverCanvas.GetComponent<CanvasGroup>();

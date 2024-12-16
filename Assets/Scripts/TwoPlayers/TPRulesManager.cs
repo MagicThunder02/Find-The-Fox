@@ -6,7 +6,7 @@ using System.Collections;
 public class TPRulesManager : MonoBehaviour
 {
     public bool gameEnded = false;
-    public GameOverManager GameOverManager; // Riferimento allo script del blur
+    public TPGameOverManager GameOverManager; // Riferimento allo script del blur
     public LayerMask gridLayerMask;
 
     private GridManager gridManager; // Reference to the GridManager

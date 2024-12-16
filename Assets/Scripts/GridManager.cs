@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     public SPRulesManager SPRulesManager; // Reference to the rules manager component
     public TPRulesManager TPRulesManager; // Reference to the rules manager component
 
-    private Cell[,] grid; // 2D array to store grid object references
+    public Cell[,] grid; // 2D array to store grid object references
     public Tile[,] gameBoard; // 2D array to store placed tiles (both SPTile and TPTile)
 
     void Awake()
@@ -66,43 +66,7 @@ public class GridManager : MonoBehaviour
         textObject.transform.position = position + new Vector3(0, 0, -0.1f);
     }
 
-    // Place any tile (SPTile or TPTile) on the board
-    public bool PlaceSPTile(Tile tile)
-    {
-        if (SPRulesManager.gameEnded || tile.placed)
-        {
-            return false; // Game has ended, no more tiles can be placed
-        }
 
-        tile.placed = true; // Mark the tile as placed
-        tile.ShowFront(); // Show the front of the tile
-
-        for (int row = 0; row < gridHeight; row++)
-        {
-            for (int col = 0; col < gridWidth; col++)
-            {
-                if (gameBoard[row, col] == null) // Find the first empty cell
-                {
-                    // Get the world position of the first empty cell
-                    // Debug.Log("Placing tile at grid: " + grid[row, col]);
-                    Vector3 worldPosition = grid[row, col].transform.position;
-
-                    // Place the tile at this position
-                    tile.transform.position = worldPosition + new Vector3(0, 0, -0.1f); // Slightly above the cell
-                    tile.ShowFront(); // Show the front of the tile
-
-                    // Update the game board array with the placed tile
-                    gameBoard[row, col] = tile; // Store the tile at the correct position
-
-                    SPRulesManager.CheckForWord("FOX"); // Check for words after placing the tile
-
-                    return true; // Tile placed successfully
-                }
-            }
-        }
-
-        return false; // No empty spots were found
-    }
 
     public void ResetBoard()
     {
